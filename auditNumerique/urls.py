@@ -5,6 +5,11 @@ from rest_framework.documentation import include_docs_urls
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import routers
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
 from . import views
 
 router = routers.DefaultRouter()
@@ -34,4 +39,8 @@ urlpatterns = [
     # path('api/', include('auditNumerique.urls')),  # Inclure les routes de ton app
     # Ajouter Swagger à l'URL
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtient une paire de tokens (access et refresh)
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Obtient un nouveau token d'accès en utilisant un refresh token valide
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),    # Vérifie la validité d'un token d'accès
 ]
