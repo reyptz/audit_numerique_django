@@ -1,4 +1,19 @@
-# Dependency directories
+# Environnements virtuels
 .venv/
+env/
+venv/
+ENV/
+.env/
+
+# Fichiers et dossiers liés aux IDE
 .idea/
+.vscode/
+
+# Fichiers d'environnement
 .env
+.env.*
+
+# __pycache__ et fichiers compilés
+__pycache__/
+*.py[cod]
+*$py.class
