@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 
 @receiver(post_migrate)
 def create_admin_user(sender, app_config, **kwargs):
-    if app_config.name == 'auditNumerique':
+    if app_config.name == 'Audit_Numerique':
         User = get_user_model()
         try:
             admin_role = Role.objects.get(nom='admin')

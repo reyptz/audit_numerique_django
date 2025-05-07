@@ -36,11 +36,12 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
-    # path('api/', include('auditNumerique.urls')),  # Inclure les routes de ton app
+    # path('api/', include('Audit_Numerique.urls')),  # Inclure les routes de ton app
     # Ajouter Swagger à l'URL
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtient une paire de tokens (access et refresh)
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Obtient un nouveau token d'accès en utilisant un refresh token valide
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),    # Vérifie la validité d'un token d'accès
+    path("chat/", views.chat, name="chat"),  # API de chat
 ]

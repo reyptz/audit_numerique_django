@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 class SadciConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'auditNumerique'
+    name = 'Audit_Numerique'
     
     def ready(self):
-        import auditNumerique.signals
+        import Audit_Numerique.signals

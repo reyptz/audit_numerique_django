@@ -22,6 +22,31 @@ from .permissions import (
     IsAdminOrReadOnly, IsOwnerOrAdmin, IsTresorier
 )
 
+from django.http import JsonResponse
+from .utils.langchain import chatbot_response
+from channels.generic.websocket import AsyncWebsocketConsumer
+import json
+
+class AuditConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.group_name = "audit_notifications"
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
+    async def send_audit_notification(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "audit",
+            "message": event["message"]
+        }))
 
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
@@ -185,3 +210,15 @@ class CotisationViewSet(viewsets.ModelViewSet):
     filterset_fields = ['membre', 'type', 'statut']
     search_fields = ['membre__utilisateur__username', 'type']
     ordering_fields = ['date_paiement', 'montant']
+
+def chat(request):
+    # Récupérer le message envoyé par l'utilisateur
+    user_message = request.GET.get("message", "")
+
+    if not user_message:
+        return JsonResponse({"error": "Aucun message fourni."}, status=400)
+
+    # Générer une réponse avec LangChain
+    response = chatbot_response(user_message)
+
+    return JsonResponse({"response": response})

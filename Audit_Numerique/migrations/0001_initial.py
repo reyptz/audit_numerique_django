@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField()),
                 ('date_debut', models.DateTimeField()),
                 ('date_fin', models.DateTimeField()),
-                ('cooperative', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='evenements', to='auditNumerique.cooperative')),
+                ('cooperative', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='evenements', to='Audit_Numerique.cooperative')),
             ],
         ),
         migrations.CreateModel(
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date_adhesion', models.DateField(default=django.utils.timezone.now)),
                 ('actif', models.BooleanField(default=True)),
-                ('cooperative', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='membres', to='auditNumerique.cooperative')),
+                ('cooperative', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='membres', to='Audit_Numerique.cooperative')),
             ],
         ),
         migrations.CreateModel(
@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 ('date_paiement', models.DateTimeField(default=django.utils.timezone.now)),
                 ('type', models.CharField(choices=[('reguliere', 'Régulière'), ('exceptionnelle', 'Exceptionnelle'), ('solidarite', 'Solidarité')], default='reguliere', max_length=20)),
                 ('statut', models.CharField(choices=[('en_attente', 'En attente'), ('validee', 'Validée'), ('rejetee', 'Rejetée')], default='en_attente', max_length=20)),
-                ('membre', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cotisations', to='auditNumerique.membre')),
+                ('membre', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cotisations', to='Audit_Numerique.membre')),
             ],
         ),
         migrations.CreateModel(
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
                 ('date_echeance', models.DateField(blank=True, null=True)),
                 ('statut', models.CharField(choices=[('demande', 'Demandé'), ('approuve', 'Approuvé'), ('rejete', 'Rejeté'), ('en_cours', 'En cours'), ('rembourse', 'Remboursé'), ('en_retard', 'En retard')], default='demande', max_length=20)),
                 ('motif', models.TextField()),
-                ('membre', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='prets', to='auditNumerique.membre')),
+                ('membre', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='prets', to='Audit_Numerique.membre')),
             ],
         ),
         migrations.CreateModel(
@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
                 ('montant', models.DecimalField(decimal_places=2, max_digits=10)),
                 ('date_paiement', models.DateTimeField(default=django.utils.timezone.now)),
                 ('methode_paiement', models.CharField(choices=[('especes', 'Espèces'), ('mobile_money', 'Mobile Money'), ('virement', 'Virement bancaire'), ('autre', 'Autre')], default='especes', max_length=20)),
-                ('pret', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remboursements', to='auditNumerique.pret')),
+                ('pret', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remboursements', to='Audit_Numerique.pret')),
             ],
         ),
         migrations.CreateModel(
@@ -98,7 +98,7 @@ class Migration(migrations.Migration):
                 ('date_transaction', models.DateTimeField(default=django.utils.timezone.now)),
                 ('description', models.TextField()),
                 ('reference', models.CharField(max_length=50, unique=True)),
-                ('membre', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to='auditNumerique.membre')),
+                ('membre', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to='Audit_Numerique.membre')),
             ],
         ),
         migrations.CreateModel(
@@ -119,7 +119,7 @@ class Migration(migrations.Migration):
                 ('date_inscription', models.DateTimeField(default=django.utils.timezone.now)),
                 ('actif', models.BooleanField(default=True)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='audit_utilisateur_set', related_query_name='audit_utilisateur', to='auth.group', verbose_name='groups')),
-                ('role', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='utilisateurs_ayant_ce_role', to='auditNumerique.role')),
+                ('role', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='utilisateurs_ayant_ce_role', to='Audit_Numerique.role')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='audit_utilisateur_permissions_set', related_query_name='audit_utilisateur_permission', to='auth.permission', verbose_name='user permissions')),
             ],
             options={
@@ -139,7 +139,7 @@ class Migration(migrations.Migration):
                 ('contenu', models.TextField()),
                 ('date_creation', models.DateTimeField(default=django.utils.timezone.now)),
                 ('lue', models.BooleanField(default=False)),
-                ('utilisateur', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='auditNumerique.utilisateur')),
+                ('utilisateur', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='Audit_Numerique.utilisateur')),
             ],
         ),
         migrations.CreateModel(
@@ -149,19 +149,19 @@ class Migration(migrations.Migration):
                 ('contenu', models.TextField()),
                 ('date_envoi', models.DateTimeField(default=django.utils.timezone.now)),
                 ('lu', models.BooleanField(default=False)),
-                ('destinataire', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages_recus', to='auditNumerique.utilisateur')),
-                ('expediteur', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages_envoyes', to='auditNumerique.utilisateur')),
+                ('destinataire', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages_recus', to='Audit_Numerique.utilisateur')),
+                ('expediteur', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages_envoyes', to='Audit_Numerique.utilisateur')),
             ],
         ),
         migrations.AddField(
             model_name='membre',
             name='utilisateur',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='adhesions', to='auditNumerique.utilisateur'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='adhesions', to='Audit_Numerique.utilisateur'),
         ),
         migrations.AddField(
             model_name='cooperative',
             name='admin',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='cooperatives_administrees', to='auditNumerique.utilisateur'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='cooperatives_administrees', to='Audit_Numerique.utilisateur'),
         ),
         migrations.CreateModel(
             name='Audit',
@@ -171,7 +171,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField()),
                 ('date_creation', models.DateTimeField(default=django.utils.timezone.now)),
                 ('details', models.JSONField(default=dict)),
-                ('utilisateur', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='audits', to='auditNumerique.utilisateur')),
+                ('utilisateur', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='audits', to='Audit_Numerique.utilisateur')),
             ],
         ),
         migrations.AlterUniqueTogether(
