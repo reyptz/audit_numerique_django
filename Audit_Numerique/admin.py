@@ -1,14 +1,9 @@
 from django.contrib import admin
 from .models import (
-    Role, Utilisateur, Cooperative, Membre, Cotisation, 
+    Utilisateur, Cooperative, Membre, Cotisation,
     Pret, Remboursement, Transaction, Message, 
     Notification, Audit, Evenement
 )
-
-@admin.register(Role)
-class RoleAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'description')
-    search_fields = ('nom', 'description')
 
 @admin.register(Utilisateur)
 class UtilisateurAdmin(admin.ModelAdmin):

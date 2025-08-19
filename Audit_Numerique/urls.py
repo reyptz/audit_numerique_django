@@ -13,11 +13,14 @@ from rest_framework_simplejwt.views import (
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'roles', views.RoleViewSet)
-router.register(r'utilisateurs', views.UtilisateurViewSet)
-router.register(r'cooperatives', views.CooperativeViewSet) # Enregistrez le nouveau ViewSet
-router.register(r'membres', views.MembreViewSet)       # Enregistrez le nouveau ViewSet
-router.register(r'cotisations', views.CotisationViewSet) # Enregistrez le nouveau ViewSet
+router.register(r'utilisateurs', views.UtilisateurViewSet, basename='utilisateur')
+router.register(r'cooperatives', views.CooperativeViewSet, basename='cooperative')
+router.register(r'membres', views.MembreViewSet, basename='membre')
+router.register(r'cotisations', views.CotisationViewSet, basename='cotisation')
+router.register(r'prets', views.PretViewSet, basename='pret')                # ← nouveaux
+router.register(r'remboursements', views.RemboursementViewSet, basename='remboursement')
+router.register(r'transactions', views.TransactionViewSet, basename='transaction')
+router.register(r'notifications', views.NotificationViewSet, basename='notification')
 
 
 # Définir un schéma pour Swagger
@@ -36,12 +39,6 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
-    # path('api/', include('Audit_Numerique.urls')),  # Inclure les routes de ton app
-    # Ajouter Swagger à l'URL
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtient une paire de tokens (access et refresh)
-    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Obtient un nouveau token d'accès en utilisant un refresh token valide
-    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),    # Vérifie la validité d'un token d'accès
     path("chat/", views.chat, name="chat"),  # API de chat
 ]

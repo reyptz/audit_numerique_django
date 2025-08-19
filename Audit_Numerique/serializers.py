@@ -1,59 +1,64 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import (
-    Role, Utilisateur, Cooperative, Membre, Cotisation,
+    Utilisateur, Cooperative, Membre, Cotisation,
     Pret, Remboursement, Transaction, Message,
     Notification, Audit, Evenement
 )
 
-class RoleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Role
-        fields = '__all__'
+User = Utilisateur()
 
 class UtilisateurSerializer(serializers.ModelSerializer):
     class Meta:
         model = Utilisateur
-        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'telephone', 'date_inscription', 'role', 'is_staff', 'is_active')
-        read_only_fields = ('id', 'date_inscription')
+        fields = (
+            "id", "username", "first_name", "last_name", "email",
+            "telephone", "role", "date_inscription", "is_staff", "is_active"
+        )
+        read_only_fields = ("id", "date_inscription", "is_staff")
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, min_length=6)
 
     class Meta:
-        model = Utilisateur
-        fields = ('username', 'first_name', 'last_name', 'email', 'telephone', 'password')
-
-    def create(self, validated_data):
-        user = Utilisateur.objects.create_user(
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            email=validated_data['email'],
-            telephone=validated_data['telephone'],
-            password=validated_data['password']
+        model  = Utilisateur
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "telephone",
+            "role",
+            "password",
         )
-        return user
+
+    def validate_username(self, v):
+        if Utilisateur.objects.filter(username=v).exists():
+            raise serializers.ValidationError("Nom d’utilisateur déjà pris.")
+        return v
+
+    def create(self, data):
+        return Utilisateur.objects.create_user(
+            username=data["username"],
+            password=data["password"],
+            email    = data.get("email", ""),
+            first_name = data.get("first_name", ""),
+            last_name  = data.get("last_name", ""),
+            telephone  = data.get("telephone", ""),
+            role       = data.get("role", "membre"),
+        )
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        username = data.get('username')
-        password = data.get('password')
-
-        if username and password:
-            user = authenticate(username=username, password=password)
-            if user:
-                if not user.is_active:
-                    raise serializers.ValidationError('User account is disabled.')
-                data['user'] = user
-            else:
-                raise serializers.ValidationError('Unable to log in with provided credentials.')
-        else:
-            raise serializers.ValidationError('Must include "username" and "password".')
-
+        user = authenticate(username=data["username"], password=data["password"])
+        if not user:
+            raise serializers.ValidationError("Identifiants invalides")
+        if not user.is_active:
+            raise serializers.ValidationError("Compte désactivé")
+        data["user"] = user
         return data
 
 class CooperativeSerializer(serializers.ModelSerializer):

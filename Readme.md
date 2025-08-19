@@ -135,6 +135,17 @@ celery -A Audit_Numerique worker --loglevel=info
 
 - Notifications envoyées en temps réel aux administrateurs et membres.
 
+## 🛡️ DevSecOps & MLOps
+
+- **DevSecOps** :
+  - Analyse statique et formatage automatique via `pre-commit` (Black, Flake8, Isort, Bandit).
+  - Intégration continue avec GitHub Actions (`.github/workflows/ci.yml`).
+  - Conteneurisation avec Docker et déploiement via Gunicorn.
+
+- **MLOps** :
+  - Exemple de pipeline de machine learning avec `scikit-learn` et `MLflow` dans `mlops/train.py`.
+  - Dépendances ML isolées dans `mlops/requirements-ml.txt`.
+  
 ## 🧑‍💻 **Contribution**
 1. Forkez le dépôt.
 2. Créez une nouvelle branche :

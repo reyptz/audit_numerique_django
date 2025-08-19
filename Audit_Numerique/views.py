@@ -7,20 +7,18 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from django.db.models import Sum, Q
 from .models import (
-    Role, Utilisateur, Cooperative, Membre, Cotisation,
+    Utilisateur, Cooperative, Membre, Cotisation,
     Pret, Remboursement, Transaction, Message,
     Notification, Audit, Evenement
 )
 from .serializers import (
-    RoleSerializer, UtilisateurSerializer, LoginSerializer,
+    UtilisateurSerializer, LoginSerializer,
     CooperativeSerializer, MembreSerializer, CotisationSerializer,
     PretSerializer, RemboursementSerializer, TransactionSerializer,
     MessageSerializer, NotificationSerializer, AuditSerializer,
     EvenementSerializer, RegistrationSerializer
 )
-from .permissions import (
-    IsAdminOrReadOnly, IsOwnerOrAdmin, IsTresorier
-)
+from .permissions import IsAdmin, IsSecretaire, IsTresorier, ReadOnly
 
 from django.http import JsonResponse
 from .utils.langchain import chatbot_response
@@ -48,21 +46,11 @@ class AuditConsumer(AsyncWebsocketConsumer):
             "message": event["message"]
         }))
 
-class RoleViewSet(viewsets.ModelViewSet):
-    queryset = Role.objects.all()
-    serializer_class = RoleSerializer
-    permission_classes = []
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['nom']
-    search_fields = ['nom', 'description']
-    ordering_fields = ['nom']
-
-
 class UtilisateurViewSet(viewsets.ModelViewSet):
     queryset = Utilisateur.objects.all()
     serializer_class = UtilisateurSerializer
     #permission_classes = [AllowAny]
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated, IsAdmin]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['username', 'email', 'role', 'actif']
     search_fields = ['username', 'email', 'first_name', 'last_name', 'telephone']
@@ -222,3 +210,35 @@ def chat(request):
     response = chatbot_response(user_message)
 
     return JsonResponse({"response": response})
+
+class PretViewSet(viewsets.ModelViewSet):
+    queryset = Pret.objects.all()
+    serializer_class = PretSerializer
+    permission_classes = [IsTresorier | IsAdmin | ReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["membre", "statut"]
+    ordering_fields = ["date_demande", "montant"]
+
+class RemboursementViewSet(viewsets.ModelViewSet):
+    queryset = Remboursement.objects.all()
+    serializer_class = RemboursementSerializer
+    permission_classes = [IsTresorier | IsAdmin | ReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["pret", "methode_paiement"]
+    ordering_fields = ["date_paiement", "montant"]
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    permission_classes = [IsTresorier | IsAdmin | ReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["membre", "type"]
+    ordering_fields = ["date_transaction", "montant"]
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = [IsSecretaire | IsAdmin | ReadOnly]  # ⇠ adapte si besoin
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["utilisateur", "type", "lue"]
+    ordering_fields = ["date_creation"]

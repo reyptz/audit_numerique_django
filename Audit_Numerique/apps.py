@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-class SadciConfig(AppConfig):
+class AuditNumeriqueConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'Audit_Numerique'
     

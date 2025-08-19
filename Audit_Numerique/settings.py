@@ -38,14 +38,18 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     'rest_framework',
     'drf_yasg',
-    'Audit_Numerique',  # Assurez-vous que c'est exactement 'Audit_Numerique'
     'django_filters',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'Audit_Numerique.apps.AuditNumeriqueConfig',
 ]
 
+AUTH_USER_MODEL = "Audit_Numerique.Utilisateur"
+
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -53,6 +57,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+# Autoriser exactement ton front Vite
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
 ]
 
 ROOT_URLCONF = "Audit_Numerique.urls"
@@ -90,14 +99,13 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'audit',
+        'NAME': 'audit_numerique',
         'USER': 'postgres',
         'PASSWORD': 'B313E',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -116,7 +124,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -152,8 +159,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),      # Durée de validité du token d'accès
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),        # Durée de validité du token de rafraîchissement
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),      # Durée de validité du token d'accès
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=5),        # Durée de validité du token de rafraîchissement
     'ROTATE_REFRESH_TOKENS': False,                    # Si True, un nouveau refresh token est généré à chaque refresh
     'BLACKLIST_AFTER_ROTATION': False,                 # Si True, l'ancien refresh token est invalidé après rotation
 
@@ -176,8 +183,8 @@ SIMPLE_JWT = {
 
     'JTI_CLAIM': 'jti',
 
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(minutes=5), # Durée de vie du sliding refresh token
-    'SLIDING_TOKEN_LIFETIME': timedelta(hours=1),       # Durée de vie maximale du sliding token
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=5), # Durée de vie du sliding refresh token
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=5),       # Durée de vie maximale du sliding token
     'SLIDING_TOKEN': False,                             # Activer les sliding tokens
 
     # Configurations spécifiques aux claims

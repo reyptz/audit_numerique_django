@@ -1,48 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
-import json
-
-
-class Role(models.Model):
-    """Définit les différents rôles et leurs permissions"""
-    nom = models.CharField(max_length=50)
-    description = models.TextField()
-    permissions = models.JSONField(default=dict)
-
-    def __str__(self):
-        return self.nom
-
 
 class Utilisateur(AbstractUser):
-    """Stocke les informations de base sur tous les utilisateurs du système"""
-    telephone = models.CharField(max_length=20, blank=True, null=True)
-    date_inscription = models.DateTimeField(default=timezone.now)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, related_name='utilisateurs_ayant_ce_role')
-    actif = models.BooleanField(default=True)
+    """
+        Utilisateur unique + rôle simplifié (choices).
+        Admin ↔ is_staff / is_superuser.
+        """
+    # rôle applicatif
+    ROLE_CHOICES = [
+        ('superadmin', 'SuperAdmin'),
+        ('admin', 'Admin'),
+        ('tresorier', 'Trésorier'),
+        ('secretaire', 'Secrétaire'),
+        ('membre', 'Membre'),
+    ]
+    role = models.CharField(max_length=12, choices=ROLE_CHOICES, default='membre')
 
-    groups = models.ManyToManyField(
-        'auth.Group',
-        verbose_name=('groups'),
-        blank=True,
-        help_text=(
-            'The groups this user belongs to. A user will get all permissions '
-            'granted to each of their groups.'
-        ),
-        related_name="audit_utilisateur_set",
-        related_query_name="audit_utilisateur",
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        verbose_name=('user permissions'),
-        blank=True,
-        help_text=('Specific permissions for this user.'),
-        related_name="audit_utilisateur_permissions_set",
-        related_query_name="audit_utilisateur_permission",
-    )
+    telephone        = models.CharField(max_length=20, blank=True, null=True)
+    date_inscription = models.DateTimeField(default=timezone.now)
+    actif            = models.BooleanField(default=True)
+
+    groups = None
+    user_permissions = None
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.username})"
+        return f"{self.username}"
 
 
 class Cooperative(models.Model):
