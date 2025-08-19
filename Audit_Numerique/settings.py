@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'django_filters',
     'rest_framework_simplejwt',
+    'channels',
     'Audit_Numerique.apps.AuditNumeriqueConfig',
 ]
 
@@ -188,4 +189,8 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN': False,                             # Activer les sliding tokens
 
     # Configurations spécifiques aux claims
+}
+
+CHANNEL_LAYERS = {
+    "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
 }

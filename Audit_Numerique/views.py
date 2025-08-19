@@ -1,3 +1,4 @@
+from marshmallow import ValidationError
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,6 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from django.db.models import Sum, Q
+
+from . import serializers
 from .models import (
     Utilisateur, Cooperative, Membre, Cotisation,
     Pret, Remboursement, Transaction, Message,
@@ -24,6 +27,13 @@ from django.http import JsonResponse
 from .utils.langchain import chatbot_response
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+
+from rest_framework.views import APIView
+
+class RolesView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        return Response([{"key": k, "label": v} for k, v in Utilisateur.ROLE_CHOICES])
 
 class AuditConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -167,6 +177,18 @@ class MembreViewSet(viewsets.ModelViewSet):
     search_fields = ['utilisateur__username', 'utilisateur__first_name', 'utilisateur__last_name']
     ordering_fields = ['date_adhesion']
 
+    def create(self, request, *args, **kwargs):
+        print("Request data:", request.data)
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as e:  # Use rest_framework.exceptions.ValidationError
+            print("Validation error:", e.detail)
+            raise
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     @action(detail=True, methods=['get'], permission_classes=[AllowAny])
     def cotisations(self, request, pk=None):
         membre = self.get_object()
@@ -242,3 +264,34 @@ class NotificationViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["utilisateur", "type", "lue"]
     ordering_fields = ["date_creation"]
+
+class EvenementViewSet(viewsets.ModelViewSet):
+    queryset = Evenement.objects.all()
+    serializer_class = EvenementSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["cooperative"]
+    ordering_fields = ["date_debut", "date_fin"]
+
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["expediteur", "destinataire", "lu"]
+    ordering_fields = ["date_envoi"]
+
+    def perform_create(self, serializer):
+        # l’expéditeur = utilisateur connecté
+        serializer.save(expediteur=self.request.user)
+
+class AuditViewSet(viewsets.ModelViewSet):
+    queryset = Audit.objects.all()
+    serializer_class = AuditSerializer
+    permission_classes = [IsAdmin | ReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["type", "utilisateur"]
+    ordering_fields = ["date_creation"]
+
+    def perform_create(self, serializer):
+        serializer.save(utilisateur=self.request.user if self.request.user.is_authenticated else None)

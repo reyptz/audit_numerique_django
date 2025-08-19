@@ -32,7 +32,7 @@ class Cooperative(models.Model):
     """Informations sur les coopératives enregistrées"""
     nom = models.CharField(max_length=100)
     description = models.TextField()
-    date_creation = models.DateField(default=timezone.now)
+    date_creation = models.DateField(auto_now_add=True)
     admin = models.ForeignKey(Utilisateur, on_delete=models.SET_NULL, null=True,
                               related_name='cooperatives_administrees')
 
@@ -44,7 +44,7 @@ class Membre(models.Model):
     """Association entre utilisateurs et coopératives"""
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='adhesions')
     cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE, related_name='membres')
-    date_adhesion = models.DateField(default=timezone.now)
+    date_adhesion = models.DateField(auto_now_add=True)
     actif = models.BooleanField(default=True)
 
     class Meta:
@@ -195,8 +195,8 @@ class Evenement(models.Model):
     """Gestion du calendrier des événements"""
     titre = models.CharField(max_length=100)
     description = models.TextField()
-    date_debut = models.DateTimeField()
-    date_fin = models.DateTimeField()
+    date_debut = models.DateTimeField(default=timezone.now)
+    date_fin = models.DateTimeField(default=timezone.now)
     cooperative = models.ForeignKey(Cooperative, on_delete=models.CASCADE, related_name='evenements')
 
     def __str__(self):

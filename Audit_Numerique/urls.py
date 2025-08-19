@@ -1,16 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import routers
-from rest_framework.documentation import include_docs_urls
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import routers
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView,
-)
+
 from . import views
+from .routing import websocket_urlpatterns
+from .views import RolesView
 
 router = routers.DefaultRouter()
 router.register(r'utilisateurs', views.UtilisateurViewSet, basename='utilisateur')
@@ -21,7 +17,9 @@ router.register(r'prets', views.PretViewSet, basename='pret')                # �
 router.register(r'remboursements', views.RemboursementViewSet, basename='remboursement')
 router.register(r'transactions', views.TransactionViewSet, basename='transaction')
 router.register(r'notifications', views.NotificationViewSet, basename='notification')
-
+router.register(r'evenements', views.EvenementViewSet, basename='evenement')
+router.register(r'messages', views.MessageViewSet, basename='message')
+router.register(r'audits', views.AuditViewSet, basename='audit')
 
 # Définir un schéma pour Swagger
 schema_view = get_schema_view(
@@ -40,5 +38,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path("chat/", views.chat, name="chat"),  # API de chat
+    path("chat/", views.chat, name="chat"),
+    path('ws/', include(websocket_urlpatterns)),
+    path('roles/', RolesView.as_view(), name='roles'),
 ]
